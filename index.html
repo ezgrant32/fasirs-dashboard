@@ -1227,7 +1227,7 @@ function showDP(id,type){
   var phEl=document.getElementById('dp-ph');
   var ph=(f.phone||'').replace(/\D/g,'');
   var smsMsg=type==='enable'?'Devices to Enable for FASIR '+f.fasir:'Your FASIR '+f.fasir+' is Disabled';
-  if(ph){ var iosDev=/iPad|iPhone|iPod/.test(navigator.userAgent);phEl.href='sms:+1'+ph+(iosDev?'&body=':'?body=')+encodeURIComponent(smsMsg); phEl.textContent=f.phone; phEl.title='Tap to text: '+smsMsg; }
+  if(ph){var iosDev=/iPad|iPhone|iPod/.test(navigator.userAgent);var digits=ph.replace(/\D/g,'');if(digits.length===11&&digits[0]==='1') digits=digits.slice(1);var sep=iosDev?'&':'?';var smsUrl='sms:+1'+digits+sep+'body='+encodeURIComponent(smsMsg);phEl.href=smsUrl;phEl.setAttribute('onclick','event.preventDefault();window.location.href=this.href;');phEl.textContent=f.phone;phEl.title='Tap to text: '+smsMsg;}
   else { phEl.href='#'; phEl.textContent='-'; phEl.title=''; }
   // Devices label
   document.getElementById('dp-devs-label').textContent=type==='enable'?'Devices to Enable':'Devices to Disable';
