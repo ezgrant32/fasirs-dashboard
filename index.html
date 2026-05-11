@@ -369,11 +369,7 @@ textarea{resize:vertical;min-height:64px}
 .ms-item{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700;color:var(--tx)}
 .ms-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .ms-sep{color:var(--bo);font-size:18px;line-height:1;margin:0 2px}
-#cal-tooltip{position:fixed;z-index:9999;background:#1e293b;color:#f1f5f9;border-radius:10px;padding:10px 13px;min-width:170px;max-width:240px;font-size:12px;line-height:1.55;box-shadow:0 6px 20px rgba(0,0,0,0.3);pointer-events:none;display:none;border:1px solid rgba(255,255,255,0.08)}
-.ct-row{padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.07)}
 .ct-row:last-child{border-bottom:none}
-.ct-more{color:#94a3b8;font-size:11px;margin-top:4px}
-@media(hover:none){#cal-tooltip{display:none!important}}
 .cu-section{background:var(--ca);border-radius:14px;border:1px solid var(--bo);overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
 .cu-sec-hdr{display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--ca);border-bottom:1px solid var(--bo)}
 .cu-sec-title{font-size:15px;font-weight:800;color:var(--tx);flex:1}
@@ -1077,7 +1073,7 @@ function renderPage(p){
   else if(p==='east')    body=loopPage('east');
   else if(p==='help')    body=helpPage();
   document.getElementById('pc').innerHTML=tb+'<div class="content">'+abanner()+body+'</div>';
-  if(p==='status') initChart(); if(p==='disable'||p==='enable') setTimeout(function(){initCondChart(p);attachCalTooltips();},0); setTimeout(renderUserPill,0);
+  if(p==='status') initChart(); if(p==='disable'||p==='enable') setTimeout(function(){initCondChart(p);},0); setTimeout(renderUserPill,0);
   setTimeout(initSwipe,0);
 }
 
@@ -1110,7 +1106,7 @@ function monthView(type){
     var heatSt=cnt>0?'background:rgba('+heatRGB+','+heat+');box-shadow:0 2px 8px rgba('+heatRGB+','+(cnt/maxDay*0.4).toFixed(2)+')':'';
     var badge=cnt>0?'<div class="day-count" style="'+heatSt+'"><div class="day-count-num">'+cnt+'</div><div class="day-count-lbl">FASIR'+(cnt===1?'':'s')+'</div></div>':'';
     var cellShadow=cnt>0?'box-shadow:0 2px '+(4+Math.round(cnt/maxDay*10))+'px rgba('+heatRGB+','+(0.12+cnt/maxDay*0.22).toFixed(2)+')':'';
-    cells+='<div class="cell'+(isT?' today':'')+(cnt>0?' has-fasirs':'')+'"'+' style="'+cellShadow+'" data-type="'+type+'" data-y="'+y+'" data-m="'+m+'" data-d="'+d+'"'+(cnt>0?' data-cnt="'+cnt+'"':'')+'  onclick="goDay(this.dataset.type,+this.dataset.y,+this.dataset.m,+this.dataset.d)"><div class="dn">'+(isT?'<span style=\'width:22px;height:22px;background:var(--ac);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px\'>'+d+'</span>':d)+'</div>'+badge+'</div>';
+    cells+='<div class="cell'+(isT?' today':'')+'"'+' style="'+cellShadow+'" data-type="'+type+'" data-y="'+y+'" data-m="'+m+'" data-d="'+d+'"'+(cnt>0?' data-cnt="'+cnt+'"':'')+'  onclick="goDay(this.dataset.type,+this.dataset.y,+this.dataset.m,+this.dataset.d)"><div class="dn">'+(isT?'<span style=\'width:22px;height:22px;background:var(--ac);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px\'>'+d+'</span>':d)+'</div>'+badge+'</div>';
   }
   var rem=(7-(firstDow+days)%7)%7;
   for(var i=0;i<rem;i++) cells+='<div class="cell empty"></div>';
@@ -1178,42 +1174,8 @@ function fasirCard(f,type){
 +'</div>';
 }
 
-function attachCalTooltips(){
-  var cells=document.querySelectorAll('.has-fasirs');
-  cells.forEach(function(el){
-    el.addEventListener('mouseenter',function(evt){
-      if(window.matchMedia('(hover:none)').matches) return;
-      var type=el.dataset.type, y=+el.dataset.y, m=+el.dataset.m, d=+el.dataset.d;
-      var fasirs=getFasirs(type,y,m,d);
-      if(!fasirs.length) return;
-      var tip=document.getElementById('cal-tooltip');
-      if(!tip) return;
-      var rows=fasirs.slice(0,4).map(function(f){
-        var t2=type==='disable'?(f.startTime||'')+' → '+(f.endTime||''):'Enable: '+(f.endTime||'');
-        return '<div class="ct-row"><strong>FASIR '+esc(f.fasir)+'</strong> — '+esc(f.building)
-          +'<br><span style="color:#94a3b8;font-size:11px">'+esc(t2)+'</span></div>';
-      }).join('');
-      var more=fasirs.length>4?'<div class="ct-more">+'+(fasirs.length-4)+' more…</div>':'';
-      tip.innerHTML=rows+more;
-      tip.style.display='block';
-      var rect=el.getBoundingClientRect();
-      var tx=rect.left+rect.width/2, ty=rect.bottom+6;
-      var tw=tip.offsetWidth||220;
-      if(tx+tw/2>window.innerWidth-10) tx=window.innerWidth-tw-10;
-      if(tx-tw/2<10) tx=tw/2+10;
-      if(ty+100>window.innerHeight) ty=rect.top-110;
-      tip.style.left=(tx-tw/2)+'px';
-      tip.style.top=ty+'px';
-    });
-    el.addEventListener('mouseleave',function(){
-      var tip=document.getElementById('cal-tooltip');
-      if(tip) tip.style.display='none';
-    });
-  });
-}
 function showCalTip(){}
 function posCalTip(){}
-function hideCalTip(){ var tip=document.getElementById('cal-tooltip'); if(tip) tip.style.display='none'; }
 function goToday(t){var now=new Date();CAL[t].year=now.getFullYear();CAL[t].month=now.getMonth();CAL[t].day=now.getDate();CAL[t].view='month';renderPage(curPage);}
 function printDay(type){
   var cs=CAL[type],y=cs.year,m=cs.month,d=cs.day;
@@ -2401,7 +2363,6 @@ showPage('disable');
   </div>
 </div>
 
-<div id="cal-tooltip"></div>
 
 <!-- ── LOGIN OVERLAY ── -->
 <div id="login-overlay">
