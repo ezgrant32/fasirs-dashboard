@@ -802,7 +802,7 @@ function updateNavForLoop(){
   var allNavIds=['nav-disable','nav-enable','nav-status','nav-ot','nav-checkup','nav-west','nav-east','nav-help'];
   allNavIds.forEach(function(id){
     var el=document.getElementById(id); if(!el) return;
-    if(isAdmin){ el.classList.remove('nav-item-disabled'); el.style.display=''; applyAdminNav(); return; }
+    if(isAdmin){ el.classList.remove('nav-item-disabled'); el.style.display='block'; applyAdminNav(); return; }
     if(!loopActive){
       // normal mode: hide west, east, checkup from users
       if(id==='nav-west'||id==='nav-east'||id==='nav-checkup') el.style.display='none';
@@ -945,7 +945,7 @@ window.addEventListener('DOMContentLoaded',function(){
 function applyAdminNav(){
   ['nav-checkup','mob-nav-checkup'].forEach(function(id){
     var el=document.getElementById(id);
-    if(el) el.style.display=isAdmin?'':'none';
+    if(el) el.style.display=isAdmin?'block':'none';
   });
 }
 
@@ -1075,6 +1075,7 @@ function renderPage(p){
   document.getElementById('pc').innerHTML=tb+'<div class="content">'+abanner()+body+'</div>';
   if(p==='status') initChart(); if(p==='disable'||p==='enable') setTimeout(function(){initCondChart(p);},0); setTimeout(renderUserPill,0);
   setTimeout(initSwipe,0);
+  applyAdminNav();
 }
 
 // ── CALENDAR ──
@@ -1226,7 +1227,7 @@ function showDP(id,type){
   var phEl=document.getElementById('dp-ph');
   var ph=(f.phone||'').replace(/\D/g,'');
   var smsMsg=type==='enable'?'Devices to Enable for FASIR '+f.fasir:'Your FASIR '+f.fasir+' is Disabled';
-  if(ph){ phEl.href='sms:+1'+ph+'?body='+encodeURIComponent(smsMsg); phEl.textContent=f.phone; phEl.title='Tap to text: '+smsMsg; }
+  if(ph){ var iosDev=/iPad|iPhone|iPod/.test(navigator.userAgent);phEl.href='sms:+1'+ph+(iosDev?'&body=':'?body=')+encodeURIComponent(smsMsg); phEl.textContent=f.phone; phEl.title='Tap to text: '+smsMsg; }
   else { phEl.href='#'; phEl.textContent='-'; phEl.title=''; }
   // Devices label
   document.getElementById('dp-devs-label').textContent=type==='enable'?'Devices to Enable':'Devices to Disable';
